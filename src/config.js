@@ -10,12 +10,13 @@ export default {
     organisationId: process.env.ORGANISATION_ID,
     signingCertKID: process.env.SIGNING_CERT_KID,
     sigingKeyPath: process.env.SIGNING_KEY_PATH,
-    audiences: {
-        enrollmentAudiencePrefix: process.env.ENROLLMENT_AUDIENCE_PREFIX
-    },
+    audiencePrefix: process.env.API_AUDIENCE_PREFIX,
     clientDetailsUrl: process.env.CLIENT_DETAILS_ENDPOINT,
-    enrollmentIdPrefix: process.env.ENROLLMENT_ID_PREFIX,
+    consentIdPrefix: process.env.CONSENT_ID_PREFIX,
     fido: {
-        registration_options_endpoint: process.env.FIDO_REGISTRATION_OPTIONS
+        registration_options_endpoint: process.env.FIDO_REGISTRATION_OPTIONS,
+        registration_endpoint: process.env.FIDO_REGISTRATION,
+        sign_options: process.env.FIDO_SIGN_OPTIONS,
+        sign: process.env.FIDO_SIGN
     }
 };

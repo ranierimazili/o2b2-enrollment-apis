@@ -20,6 +20,12 @@ export const getAudience = function(pathPrefix, pathEndpoint, params) {
     return audience;
 }
 
+export const extractConsentIdFromScopes = function(scopes) {
+    const scopesArr = scopes.split(' ');
+    const index = scopesArr.findIndex(item => item.startsWith(config.consentIdPrefix));
+    return scopesArr[index];
+}
+
 export const hasScope = function(token, scope) {
     return token.scope.split(' ').includes(`consent:${scope}`);
 }
