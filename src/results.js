@@ -1,6 +1,7 @@
 import { v4 } from "uuid";
 import { signPayload } from "./utils.js";
 import config from "./config.js";
+import * as fidoServer from './conn/fido_server.js'
 
 export const returnUnauthorised = function() {
     const currentDate = new Date();
@@ -241,10 +242,12 @@ export const patchEnrollment = function(enrollment, payload) {
     return enrollment;
 }
 
-export const postFidoRegistrationOptions = async function(payload, enrollmentId) {
+//export const postFidoRegistrationOptions = async function(payload, enrollmentId) {
+export const postFidoRegistrationOptions = async function(rpId, rpName, platform, enrollmentId) {
     //Busca no servidor FIDO as opções de vínculo de dispositivo
-    const fidoRequest = {...payload.data, enrollmentId};
-    const fidoResponse = await createAttestationOptionsOnFidoServer(fidoRequest);
+    //const fidoRequest = {...payload.data, enrollmentId};
+    const fidoRequest = {rpId, rpName, platform, enrollmentId};
+    const fidoResponse = await fidoServer.createAttestationOptionsOnFidoServer(fidoRequest);
     console.log(fidoResponse);
     //Constroi o response body
     const currentDate = new Date();
@@ -281,13 +284,15 @@ export const postEnrollmentRiskSignals = async function(payload, clientOrganisat
 
 export const postFidoRegistration = async function(payload, enrollmentId) {
     const fidoRequest = {...payload.data, enrollmentId};
-    const fidoResponse = await createAttestationOnFidoServer(fidoRequest);
+    const fidoResponse = await fidoServer.createAttestationOnFidoServer(fidoRequest);
     return fidoResponse;
 }
-
-export const postFidoSignOption = async function(payload, enrollmentId) {
-    const fidoRequest = {...payload.data, enrollmentId};
-    const fidoResponse = await getAssertionOnFidoServer(fidoRequest);
+//export const postFidoRegistrationOptions = async function(rpId, rpName, platform, enrollmentId) {
+//export const postFidoSignOption = async function(payload, enrollmentId) {
+export const postFidoSignOption = async function(rpId, rpName, platform, enrollmentId) {
+    //const fidoRequest = {...payload.data, enrollmentId};
+    const fidoRequest = {rpId, rpName, platform, enrollmentId};
+    const fidoResponse = await fidoServer.getAssertionOnFidoServer(fidoRequest);
 
     const currentDate = new Date();
     const response = {
@@ -305,7 +310,7 @@ export const postFidoSignOption = async function(payload, enrollmentId) {
 export const postFidoSign = async function(payload, enrollmentId) {
     console.log("postFidoSign: ", payload, enrollmentId)
     const fidoRequest = { assertion: payload.data.fidoAssertion, enrollmentId};
-    const fidoResponse = await checkAssertionOnFidoServer(fidoRequest);
+    const fidoResponse = await fidoServer.checkAssertionOnFidoServer(fidoRequest);
 
     const currentDate = new Date();
     const response = {
@@ -320,7 +325,7 @@ export const postFidoSign = async function(payload, enrollmentId) {
     return response;
 }
 
-const createAttestationOptionsOnFidoServer = async function(payload) {
+/*const createAttestationOptionsOnFidoServer = async function(payload) {
     try {
         const url = config.fido.registration_options_endpoint;
 
@@ -399,11 +404,11 @@ const checkAssertionOnFidoServer = async function(payload) {
         };
         
         const res = await fetch(url, requestOptions);
-        const json = await res.json();
+        //const json = await res.json();
         console.log("checkAssertionOnFidoServer: ", json);
         return json;
     } catch (e) {
         console.log("Não foi possível realizar a criação do attestation - Mudar erro -  TODO", e);
         return;
     }
-}
+}*/

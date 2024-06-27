@@ -4,6 +4,7 @@ import * as responses from './results.js';
 import config from './config.js'
 import MemoryAdapter from './persistence.js';
 import * as utils from './utils.js'
+import * as authServer from './conn/authorization_server.js'
 
 const router = express.Router();
 const db = new MemoryAdapter();
@@ -218,9 +219,13 @@ router.post('/enrollments/v1/enrollments/:enrollmentId/fido-registration-options
         res.status(400).json(responses.returnBadSignature());
         return;
     }
+
+    //TODO pegar certificado de cliente, extrair do subjectDN o CN para comparar com o que passado no campo payload.rp
+    const clientDN = utils.extractCNFromClientCertificate(req);
+    const clientName = await authServer.getClientName(tokenDetails.client_id);
     
     //Busca no servidor FIDO as opções de vínculo de dispositivo
-    const fidoRegistrationOptions = await responses.postFidoRegistrationOptions(payload, req.params.enrollmentId);
+    const fidoRegistrationOptions = await responses.postFidoRegistrationOptions(clientDN, clientName, payload.data.platform, req.params.enrollmentId);
 
     //Assina a resposta no formato jwt
     const signedFidoRegistrationOptions = await utils.signPayload(fidoRegistrationOptions, clientOrganisationId);
@@ -311,9 +316,15 @@ router.post('/enrollments/v1/enrollments/:enrollmentId/fido-sign-options', async
         res.status(400).json(responses.returnBadSignature());
         return;
     }
+
+    //TODO pegar certificado de cliente, extrair do subjectDN o CN para comparar com o que passado no campo payload.rp
+    const clientDN = utils.extractCNFromClientCertificate(req);
+    const clientName = await authServer.getClientName(tokenDetails.client_id);
     
     //Busca no servidor FIDO as opções autenticação
-    const fidoSignOptions = await responses.postFidoSignOption(payload, req.params.enrollmentId);
+    //const fidoSignOptions = await responses.postFidoSignOption(payload, req.params.enrollmentId);
+    //const fidoRegistrationOptions = await responses.postFidoRegistrationOptions(clientDN, clientName, payload.data.platform, req.params.enrollmentId);
+    const fidoSignOptions = await responses.postFidoSignOption(clientDN, clientName, payload.data.platform, req.params.enrollmentId);
 
     //Assina a resposta no formato jwt
     const signedFidoSignOptions = await utils.signPayload(fidoSignOptions, clientOrganisationId);
@@ -362,9 +373,11 @@ router.post('/enrollments/v1/consents/:consentId/authorise', async (req, res) =>
         res.status(404).json(responses.returnNotFound());
         return;
     }
+
+    console.log("enrollment: ", enrollment);
     
     //Valida a autenticação do usuário no servidor FIDO
-    const fidoSign = await responses.postFidoSign(payload, enrollment.enrollmentId);
+    const fidoSign = await responses.postFidoSign(payload, enrollment.data.enrollmentId);
 
     //Assina a resposta no formato jwt
     //const signedFidoSign = await utils.signPayload(fidoSignOptions, clientOrganisationId);

@@ -3,6 +3,7 @@ import { createPrivateKey } from 'crypto';
 import fs from 'fs';
 import config from "./config.js";
 import { v4 } from "uuid";
+import { X509Certificate } from 'node:crypto';
 
 function getPrivateKey() {
     const signingKey = fs.readFileSync(config.sigingKeyPath);
@@ -53,4 +54,20 @@ export const signPayload = async function (requestBody, audience) {
     }
 
     return signedRequestBody;
+}
+
+export const getClientCertificate = function (req) {
+    const pemCert = req.headers['ssl-client-cert'];
+    let x509Cert;
+    if (pemCert) {
+        x509Cert = new X509Certificate(unescape(pemCert), 'base64');
+    } else {
+        x509Cert = new X509Certificate(req.connection.getPeerCertificate(false).raw);	
+    }
+    return x509Cert;
+}
+
+export const extractCNFromClientCertificate = function (req) {
+    const clientCert = getClientCertificate(req);
+    return clientCert.toLegacyObject().subject['CN'];
 }
