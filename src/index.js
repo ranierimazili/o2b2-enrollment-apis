@@ -8,7 +8,7 @@ const app = express();
 const port = config.serverPort;
 
 //Gera certificados auto-assinados para localhost
-const attrs = [{ name: 'commonName', value: 'localhost' }];
+const attrs = [{ name: 'commonName', value: config.host }];
 const hostCerts = selfsigned.generate(attrs, { days: 3650, keySize: 2048 });
 
 const options = {

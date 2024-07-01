@@ -2,7 +2,8 @@ import 'dotenv/config'
 
 export default {
     serverPort: process.env.SERVER_PORT || 4001,
-    instrospection: {
+    host: process.env.HOST,
+    introspection: {
         url: process.env.INTROSPECTION_ENDPOINT,
         user: process.env.INTROSPECTION_USER,
         password: process.env.INTROSPECTION_PASSWORD

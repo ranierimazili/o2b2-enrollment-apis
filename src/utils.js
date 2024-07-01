@@ -4,6 +4,8 @@ import fs from 'fs';
 import config from "./config.js";
 import { v4 } from "uuid";
 import { X509Certificate } from 'node:crypto';
+import * as authServer from './conn/authorization_server.js';
+import * as crypto from 'node:crypto';
 
 function getPrivateKey() {
     const signingKey = fs.readFileSync(config.sigingKeyPath);
@@ -56,6 +58,10 @@ export const signPayload = async function (requestBody, audience) {
     return signedRequestBody;
 }
 
+export const getCertThumbprint = function (cert) {
+    return crypto.createHash('sha256').update(cert.raw).digest().toString('base64url');
+}
+
 export const getClientCertificate = function (req) {
     const pemCert = req.headers['ssl-client-cert'];
     let x509Cert;
@@ -70,4 +76,16 @@ export const getClientCertificate = function (req) {
 export const extractCNFromClientCertificate = function (req) {
     const clientCert = getClientCertificate(req);
     return clientCert.toLegacyObject().subject['CN'];
+}
+
+export const extractOrgIdFromJwksUri = function(url) {
+	const urlParts = new URL(url);
+	const pathSegments = urlParts.pathname.split('/').filter(segment => segment !== '');
+	return pathSegments[0];
+}
+
+export const getClientOrganizationId = async function(clientId) {
+    const client = await authServer.getClientDetails(clientId);    
+    const clientOrganisationId = extractOrgIdFromJwksUri(client.jwksUri);
+    return clientOrganisationId;
 }

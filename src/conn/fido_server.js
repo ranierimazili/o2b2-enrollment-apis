@@ -16,7 +16,7 @@ export const createAttestationOptionsOnFidoServer = async function(payload) {
 
         return json;
     } catch (e) {
-        console.log("Não foi possível realizar a criação do attestation", e);
+        console.log("Não foi possível consultar as informações para geração de vínculo do dispositivo no servidor FIDO", e);
         return;
     }
 }
@@ -34,12 +34,9 @@ export const createAttestationOnFidoServer = async function(payload) {
         };
         
         const res = await fetch(url, requestOptions);
-        //const json = await res.json();
         return;
-
-        //return json;
     } catch (e) {
-        console.log("Não foi possível realizar a criação do attestation", e);
+        console.log("Não foi possível concluir o vínculo do dispositivo no servidor FIDO", e);
         return;
     }
 }
@@ -58,10 +55,10 @@ export const getAssertionOnFidoServer = async function(payload) {
         
         const res = await fetch(url, requestOptions);
         const json = await res.json();
-        console.log("getAssertionOnFidoServer: ", json);
+
         return json;
     } catch (e) {
-        console.log("Não foi possível realizar a criação do attestation", e);
+        console.log("Não foi possível consultar as informações de autenticação do dispositivo no servidor FIDO", e);
         return;
     }
 }
@@ -80,11 +77,8 @@ export const checkAssertionOnFidoServer = async function(payload) {
         
         const res = await fetch(url, requestOptions);
         return;
-        //const json = await res.json();
-        //console.log("checkAssertionOnFidoServer: ", json);
-        //return json;
     } catch (e) {
-        console.log("Não foi possível realizar a criação do attestation - Mudar erro -  TODO", e);
+        console.log("Não foi possível concluir a autenticação  do dispositivo no servidor FIDO", e);
         return;
     }
 }
