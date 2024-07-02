@@ -132,4 +132,3 @@ dist
 src/certs/cert.pem
 src/certs/key.pem
 src/certs/signing.key
-.env
